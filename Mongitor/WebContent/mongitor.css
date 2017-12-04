@@ -1,0 +1,528 @@
+body
+{
+  margin: 0px;
+  font-family: Akzidenz,"Helvetica Neue",Helvetica,Arial,sans-serif;
+  color: #494747;
+  font-size: 16px;
+}  
+
+hr 
+{
+  height: 1px;
+  color: #69b241;
+  background-color: #69b241;
+  border: none;
+  -webkit-margin-after: 0em;
+}
+
+button
+{
+  background-color: #006cbc;
+  border-color: #006cbc;
+  color: white;
+  height: 25px;
+}  
+
+button:disabled
+{
+  background: #cccccc;
+  border-color: #dddddd;
+}
+
+th
+{
+  color: #69b241;
+  font-size: 13px;
+  text-align: left; 
+  font-weight: normal;
+}
+
+td
+{
+  text-align: left;	
+}
+
+input
+{
+  padding: 3px;	
+}
+
+#title
+{
+  font-size: 36px;
+  line-height: 48px;
+}
+    
+#outertimerdiv
+{
+  width: 180px;
+  margin-left: 20px;
+  text-align: left;
+  margin-top: 20px;
+}  
+
+#timerdiv
+{
+  border-color: #494747;
+  width: 180px;
+  border-style: inset;
+  border-width: 1px;
+  display: none;
+}  
+
+#innertimerdiv
+{
+  background-color: #69b241;
+  height: 20px;
+  width: 100px;
+}  
+
+#timerspan
+{
+  color: #69b241;
+  font-size: 13px;
+  line-height: 15px;
+  display: none;
+}  
+
+#maintopfiller
+{
+  width: 200px;
+}
+  
+#maintop 
+{
+  width: 100%;
+  margin: auto;
+  text-align: center;
+  margin-top: 5px;
+  display: flex;
+  justify-content: space-between;
+}
+
+#mainstatus
+{
+  width: 100%;
+  margin: auto;
+  font-size: 18px;
+  line-height: 24px;
+  text-align: center;
+  margin-top: 5px;
+}
+
+#maincenter
+{
+  display:table;
+  width:100%;
+  border-spacing: 20px 0px;
+}    
+
+#mainleft
+{
+  display:table-cell;
+  vertical-align: top;
+  width: 200px;
+}
+
+#mainright
+{
+  display:table-cell;
+  margin: 0 20px 0 22px;
+  
+}
+
+.server_left
+{
+  display:inline-block;
+} 
+ 
+.hrlabel
+{
+  margin-left: 20px;
+  margin-top: 30px;
+  color: #69b241;
+}  
+
+.leftbutton
+{
+  margin-top: 20px;
+  cursor: pointer;
+  color: #006cbc;
+}
+
+#homebutton
+{
+  margin-top: 30px;
+}  
+  
+#div_router
+{
+  margin-top: 30px;
+  margin-left: 20px;
+  display: normal;
+}  
+
+#div_configservers, #div_configservers_overview
+{
+  margin-top: 30px;
+  margin-left: 20px;
+  display: normal;
+}  
+
+.div_shard
+{
+  margin-top: 30px;
+  margin-left: 20px;
+  display: normal;
+}
+
+#div_graph
+{
+  margin-top: 20px;
+  margin-left: 20px;
+}
+
+.showhide
+{
+  float: right;
+  background-color: #006cbc;
+  color: white;
+  margin-right: 20px;
+  width: 18px;
+  text-align: center;
+  font-weight: bold;
+  cursor: pointer;
+}  
+
+.server_right
+{
+  display:inline-block;
+  font-size: 14px; 
+  margin-left: 9px;
+  margin-right: 70px;
+  vertical-align: top;
+}  
+
+.servername
+{
+  font-weight: bold;
+}  
+
+.server_info_div
+{
+  display: inline-block;
+}
+
+.server_info_table
+{
+  font-size: 14px;
+  margin-right: 20px;
+}
+
+.server_info_table th
+{
+  font-weight: bold;
+  color: #494747;
+}
+
+
+#mainright_credentials, #mainright_exit, #mainright_usermanual, #mainright_servers, #mainright_serverdetails, #mainright_cluster, #mainright_databases, #mainright_database_details, #mainright_collection
+{
+  display: none;
+}  
+
+/* The Modal (background) */
+.modal 
+{
+   display: none; /* Hidden by default */
+   position: fixed; /* Stay in place */
+   z-index: 1; /* Sit on top */
+   padding-top: 200px; /* Location of the box */
+   left: 0;
+   top: 0;
+   width: 100%; /* Full width */
+   height: 100%; /* Full height */
+   overflow: auto; /* Enable scroll if needed */
+   background-color: rgb(0,0,0); /* Fallback color */
+   background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+.modal-content 
+{
+   background-color: #fefefe;
+   margin: auto;
+   padding: 20px;
+   border: 1px solid #888;
+   width: 400px;
+}
+
+.close
+{
+   color: #aaaaaa;
+   float: right;
+   font-size: 28px;
+   font-weight: bold;
+}
+
+.close:hover, .close:focus
+{
+   color: #000;
+   text-decoration: none;
+   cursor: pointer;
+}
+
+.modaltitle
+{
+  color: #69b241;
+	font-size: 13px;
+  font-weight: bold;
+}
+
+.modallabel
+{
+  color: #69b241;
+  font-size: 13px;
+  display: inline-block;
+  margin-top: 15px;
+}
+
+.updatelabel
+{
+  color: #69b241;
+  font-size: 13px;
+  display: inline-block;
+  margin-top: 15px;
+  margin-left: 20px;
+}
+
+.modal_ok_button
+{
+  width: 80px;
+  margin: auto;
+  margin-top: 30px;
+}  
+
+#update_button
+{
+  width: 80px;
+  margin: auto;
+  margin-top: 30px;
+  margin-left: 59px;
+  margin-bottom: 40px;
+}
+
+#update_other_button
+{
+  width: 80px;
+  margin: auto;
+  margin-top: 30px;
+  margin-left: 240px;
+  margin-bottom: 40px;
+}
+ 
+#updaterouterhost, #updaterouterport, #updaterouterusername, #updaterouterpassword
+{
+	margin-left: 20px;
+}
+
+.hcenterflex
+{
+  display: flex;
+  justify-content: center;
+}
+
+#modal-content-setpassword, #modal-content-enterpassword, #modal-content-defaultcredentials
+{
+  width: 173px;
+  padding-left: 100px;
+  padding-right: 100px;
+}
+
+#enterpasswordstatus, #enterdefaultcredentialsstatus
+{
+	font-size: 13px;
+}
+
+#initialpassword, #mongitorpassword
+{
+  margin-top: 20px;
+} 
+
+#credentialstable
+{
+	margin-top: 30px;
+	margin-left: 20px;
+}
+
+#othercredentialsstatus, #routercredentialsstatus
+{
+  color: red;
+  margin-left: 20px;
+  margin-top: 10px;
+}
+
+.clickable
+{
+  cursor: pointer;
+}
+
+.line
+{
+  fill: none;
+  stroke: #69b241;
+  stroke-width: 2px;
+}
+
+#server_commands_div
+{
+  display: flex;	
+}
+
+#server_commands_leftdiv
+{
+	flex: 0 0 200px;
+	margin-left: 20px;
+	margin-top: 25px;
+}
+
+#server_commands_rightdiv
+{
+	flex: 8 8 400px;
+}
+
+#command_output_label
+{
+  margin-top: 30px;
+  color: #69b241;
+  font-size: 13px;
+  line-height: 15px;	
+}
+
+#server_command_output
+{
+  font-size: 13px;
+  font-family: 'Courier New',monospace;
+  white-space: pre;
+  padding: 5px 5px 5px 5px;
+}
+
+#server_command_output_wrapper
+{
+  border-color: #69b241;
+  border-style: solid;
+  border-width: 1px;
+  height: calc(100vh - 585px);	
+  width: calc(100vw - 485px); 
+  overflow: auto;
+}
+
+#div_dangerous, #div_balancer_running, #div_databases, #div_collection_stats, #div_collection_indexes, #div_collection_shards
+{
+  margin-left: 20px;
+  margin-top: 30px;	
+}
+
+#div_balancer_running
+{
+  display: table;
+  border-spacing: 0px 0px;
+}
+
+#balancer_text
+{
+  display: table-row;
+}
+
+#balancer_checkbox
+{
+  margin-top: 20px;
+}
+
+#balancer_span
+{
+  color: #cccccc;
+}
+
+#balancer_button_div
+{
+  display: table-row;
+  text-align: center;
+}
+
+#balancer_button
+{
+  margin-top: 30px;	
+}
+
+#databases_table td
+{
+  padding: 0px 20px 10px 0px;	
+}
+
+#collections_table td
+{
+  padding: 0px 0px 5px 0px;	
+}
+
+#collections_table
+{
+  margin-left: 20px;
+  margin-top: 20px;	
+}
+.database_link, .collection_link
+{
+  cursor: pointer;
+  color: #006cbc;
+}
+
+.collection_details_table th, .collection_details_table td
+{
+  padding: 0px 15px 3px 0px;	
+  font-size: 14px;
+}
+
+.collection_details_table
+{
+  border-spacing: 0px;	
+}
+
+#div_collection_shards, #div_shard_distribution_outer
+{
+  display: inline-block;
+  vertical-align: top;
+}
+
+#div_shard_distribution_outer
+{
+  margin-top: 30px;
+  margin-left: 30px;	
+}
+
+#div_shard_distribution_text
+{
+  font-size: 14px;
+  color: #69b241;
+}
+
+#svgpie
+{
+  height: 500px;
+  width: 500px;
+}
+
+.arc text 
+{
+  font-size: 10px;
+  text-anchor: middle;
+  fill: white;
+}
+
+.arc path 
+{
+  stroke: #fff;
+}
+
+#dangerous_span
+{
+  color: #006cbc;
+}

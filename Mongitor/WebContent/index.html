@@ -1,0 +1,454 @@
+<html>
+  <head>
+    <title>Mongitor</title>
+    <link rel="stylesheet" type="text/css" href="mongitor.css">
+    <link rel="shortcut icon" href="mongitor_images/favicon.png">
+  </head>
+  <script src="jquery-3.2.1.min.js"></script>
+  <script src="d3.min.js"></script>
+  <script src="moment.js"></script>
+  <script src="websockets.js"></script>
+  <script src="hideshow.js"></script>
+  <script src=serverdetails.js></script>
+  <script src=pie.js></script>
+  <script src="/port"></script>
+  <script type="text/javascript">
+  
+    var monitoring = false;
+    var check_is_running = false;
+    var check_interval = 60000;
+    var update_timer_interval = 1000;
+    var timer;
+    var halted = false;
+    
+    $(document).ready(function()
+    {
+      $("#mainright_about").load("about.html");
+      $("#mainright_usermanual").load("usermanual.html");
+      $(window).on('popstate', function (e)
+      {
+		var state = e.originalEvent.state;
+		console.log("pop");
+		if (state !== null)
+		{
+		  show_div2($("#"+state.id), false);
+		  console.log("id: " + state.id);
+		}
+      });
+      history.pushState({id: "mainright"}, "");
+      $(window).on('pushstate', function (e)
+          {
+    		var state = e.originalEvent.state;
+    		console.log("push event");
+    		if (state !== null)
+    		{
+    		  
+    		  console.log("id: " + state.id);
+    		}
+          });
+	  setupWebSocket();
+	  sendOverWebSocket("init", "command", {});
+    });
+    
+    function setpassword()
+    {
+      var password = $("#initialpassword").val().trim();
+      if (password != "")
+      {
+        sendOverWebSocket("setpassword", "command", {password: password});
+        $("#setPasswordModal").hide();
+      }
+    }
+    
+    function checkpassword()
+    {
+      var password = $("#mongitorpassword").val().trim();
+      if (password != "")
+      {
+        sendOverWebSocket("checkpassword", "command", {password: password});
+      }
+    }    
+    
+    function setdefaultcredentials()
+    {
+      var host = $("#inputrouterhost").val().trim();
+      var port = $("#inputrouterport").val().trim();
+      var username = $("#inputrouterusername").val().trim();
+      var password = $("#inputrouterpassword").val().trim();
+      
+      if (host != "" && port != "" && username != "" && password != "")
+      {
+    	$("#enterdefaultcredentialsstatus").html("Waiting for connection...");
+        $("#enterdefaultcredentialsstatus").css('color', 'black');
+        sendOverWebSocket("connecttorouter", "command", {host: host, port: port, username: username, password: password});
+      }  
+    }
+    
+    function updatedefaultcredentials()
+    {
+      var host = $("#updaterouterhost").val();
+      var port = $("#updaterouterport").val();
+      var username = $("#updaterouterusername").val();
+      var password = $("#updaterouterpassword").val();
+      
+      if ((host == "") || (port == "") || (username == "") || (password == ""))
+      {
+    	$("#routercredentialsstatus").html("Please fill in all fields.").css('color', 'red');
+      }
+      else
+      {
+    	$("#routercredentialsstatus").html("Waiting for connection.").css('color', '#494747');
+    	sendOverWebSocket("updatedefaultcredentials", "command", {host: host, port: port, username: username, password: password});
+      }	  
+    }
+    
+    function showstatus(text, ok)
+    {
+      $("#mainstatus").html(text);
+      if (ok)
+      {
+        $("#mainstatus").css('color', '#494747');
+      }  
+      else
+      {
+        $("#mainstatus").css('color', 'red');
+      }  
+    }
+    
+    function update_other_credentials()
+    {
+      var i = 0;
+      var cred_array = [];
+      var ok = true;
+      $("form#other_credentials_form :input").each(function()
+      {
+        var input = $(this);
+        if (input.attr('placeholder') == "label")
+        {
+          var label = input.val();
+          var username = $("#user"+input.attr('id')).val();
+          var password = $("#password"+input.attr('id')).val();
+          
+          if ((label == "") && (username == "") && (password == ""))
+          {
+        	 // skip empty rows
+          }	  
+          else if ((label == "") || (username == "") || (password == ""))
+          {
+        	$("#othercredentialsstatus").html("Only empty or complete rows are allowed.");
+        	ok = false;
+          }  
+          else if (label == "default")
+          {
+          	$("#othercredentialsstatus").html("Label default is not allowed.");
+          	ok = false;
+          }  
+          else
+          {  
+            var cred_obj = {label: label, username: username, password: password};
+            cred_array[i] = cred_obj;
+            i++;
+          }  
+        }  
+      });
+      if (ok)
+      {  
+        $("#routercredentialsstatus").html("");
+        sendOverWebSocket("updateothercredentials", "command", {credentials: JSON.stringify(cred_array)});
+      }  
+    }
+    
+    function show_server_overview()
+    {
+      show_div($("#mainright_servers")); 
+      sendOverWebSocket("getserverinfo", "command", {});
+      $("#mainright_servers").html(
+      `
+        <div class='hrlabel'>Config servers</div>
+        <hr>
+        <div class='showhide' id='showhide_configservers_overview' onclick='showhide($(this), $("#div_configservers_overview"))'>-</div>
+        <div id='div_configservers_overview'>Waiting for results</div>
+      `
+      );
+    }
+    
+    function show_cluster()
+    {
+      show_div($("#mainright_cluster")); 
+      $("#balancer_text").html("Waiting for results")
+      sendOverWebSocket("getclusterinfo", "command", {});
+    }
+    
+    function show_databases()
+    {
+      show_div($("#mainright_databases")); 
+      $("#div_databases").html("Waiting for results").css('color', '#494747');
+      sendOverWebSocket("listdatabases", "command", {});
+    }
+    
+    function runcheck()
+    {
+      if (monitoring)
+      {  
+    	timer = 0;  
+    	if (check_is_running)
+    	{
+    	  showstatus("Check canceled: still waiting for results of previous check.", true);	
+    	}	
+    	else
+    	{	
+          sendOverWebSocket("checkcluster", "command", {});
+          check_is_running = true;
+          showstatus("Check started: waiting for results.", true);
+          if ($("#mainright_cluster").is(":visible"))
+          {
+            sendOverWebSocket("getclusterinfo", "command", {});
+          }
+    	}
+        setTimeout(runcheck, check_interval);
+      }  
+    }
+    
+    function update_timer()
+    {
+      if (monitoring)
+      {	  
+        var partleft = (check_interval - timer) / check_interval;
+        var newwidth = Math.round(partleft * $("#timerdiv").width());
+        $("#innertimerdiv").width(newwidth);
+        timer = timer + update_timer_interval;
+        setTimeout(update_timer, update_timer_interval);
+      }  
+    }
+    
+    function startstop_monitoring(startmonitoring)
+    {
+      if (startmonitoring)
+      {
+        monitoring = true;
+        $("#startstopbutton").html("Stop monitoring");
+        $("#timerspan").show();
+        $("#timerdiv").show();
+        runcheck();
+        update_timer();
+      }
+      else
+      {
+        monitoring = false;
+        $("#startstopbutton").html("Start monitoring");
+        $("#timerspan").hide();
+        $("#timerdiv").hide();
+      } 
+    }
+    
+    function update_dangerous()
+    {
+      if ($("#dangerous_checkbox").is(":checked")) 
+      {
+        $("#balancer_checkbox").prop("disabled", false);
+        $("#balancer_span").css('color', '#006cbc');
+      }
+      else
+      {
+        $("#balancer_checkbox").prop("disabled", true);
+        $("#balancer_span").css('color', '#cccccc');
+      }  
+    }
+
+    function update_balancer()
+    {
+      if ($("#balancer_checkbox").is(":checked")) 
+      {
+        sendOverWebSocket("setbalancer", "command", {"state": "on"});
+      }
+      else
+      {
+        sendOverWebSocket("setbalancer", "command", {"state": "off"});
+      }  
+    }
+    
+    function haltmongitor()
+    {
+      show_div($("#mainright_exit"));
+      sendOverWebSocket("closeconnections", "command", {});
+      startstop_monitoring(false);
+      showstatus("Mongitor was exited. Refresh browser window to start new session.", true);
+      $("#title2").html("");
+      halted = true;
+    }
+  </script>
+  <body>
+    <div id='maintop'>
+      <div id="outertimerdiv">
+        <span id="timerspan">Time until next check</span>
+        <div id="timerdiv">
+          <div id="innertimerdiv"></div>
+        </div>
+      </div>
+      <div id="title">Mongitor<span id="title2"></span>
+        <div id='mainstatus'>Waiting for connection to Mongitor</div>
+      </div>
+      <div id="maintopfiller"></div>
+    </div>
+
+    <div id='maincenter'>
+      <div id="mainleft">
+        <div class='leftbutton' id='homebutton' onclick='show_div($("#mainright"))'>Home</div>
+        <div class='leftbutton' id='credentialsbutton' onclick='show_div($("#mainright_credentials"))'>Credentials</div>
+        <div class='leftbutton' id='startstopbutton' onclick='startstop_monitoring(!monitoring)'>Start monitoring</div>
+        <div class='leftbutton' id='clusterbutton' onclick='show_cluster()'>Cluster</div>
+        <div class='leftbutton' id='overviewbutton' onclick='show_server_overview()'>Servers overview</div>
+        <div class='leftbutton' id='databasesbutton' onclick='show_databases()'>Databases</div>
+        <div class='leftbutton' id='usermanualbutton' onclick='show_div($("#mainright_usermanual"))'>User manual</div>
+        <div class='leftbutton' id='exitbutton' onclick='haltmongitor()'>Exit</div>
+      </div>
+      <div id="mainright">
+        <div class='hrlabel'>Mongo router</div>
+        <hr>
+        <div class='showhide' id='showhide_router' onclick='showhide($(this), $("#div_router"))'>-</div>
+        <div id='div_router'>
+          
+        </div>  
+      
+        <div class='hrlabel'>Config servers</div>
+        <hr>
+        <div class='showhide' id='showhide_configservers' onclick='showhide($(this), $("#div_configservers"))'>-</div>
+        <div id='div_configservers'>
+          
+        </div>
+        
+      </div>
+      <div id='mainright_credentials'>
+        <div class='hrlabel'>Mongo router credentials</div>
+        <hr>
+        <div id='routercredentialsstatus'></div>
+        <form onsubmit='updatedefaultcredentials(); return false'>
+          <div>
+            <span class='updatelabel'><br>Hostname</span><br>
+            <input id='updaterouterhost'>
+          </div>
+          <div>
+            <span class='updatelabel'>Port</span><br>
+            <input id='updaterouterport' value='27017'>
+          </div>
+          <div>
+            <span class='updatelabel'>Username</span><br>
+            <input id='updaterouterusername'>
+          </div>
+          <div>
+            <span class='updatelabel'>Password</span><br>
+            <input id='updaterouterpassword'>
+          </div>
+          <div class='hcenterflex'>            
+            <button id='update_button' type='submit'>Update</button>
+          </div>  
+        </form>
+        <div class='hrlabel'>Other mongo server credentials</div>
+        <hr>
+        <div id='othercredentialsstatus'></div>
+        <form id='other_credentials_form' onsubmit='update_other_credentials(); return false'>
+          <div id="other_credentials"></div>
+          <button id='update_other_button' type='submit'>Update</button>
+        </form>
+      </div>
+      <div id='mainright_usermanual'></div>
+      <div id='mainright_exit'></div>
+      <div id='mainright_servers'></div>
+	  <div id='mainright_serverdetails'></div>
+	  <div id='mainright_databasedetails'></div>
+	  <div id="mainright_collection">
+        <div class='hrlabel'>Statistics for collection <span id='collectionname1'></span></div>
+        <hr>
+        <div class='showhide' id='showhide_stats' onclick='showhide($(this), $("#div_collection_stats"))'>-</div>
+        <div id='div_collection_stats'></div>  
+        <div class='hrlabel'>Indexes on collection <span id='collectionname2'></span></div>
+        <hr>
+        <div class='showhide' id='showhide_indexes' onclick='showhide($(this), $("#div_collection_indexes"))'>-</div>
+        <div id='div_collection_indexes'></div>
+         <div class='hrlabel'>Shards of collection <span id='collectionname3'></span></div>
+        <hr>
+        <div class='showhide' id='showhide_shards' onclick='showhide($(this), $("#div_collection_shards"))'>-</div>
+        <div id='div_collection_shards'></div>
+        <div  id='div_shard_distribution_outer'> 
+          <div  id='div_shard_distribution_text'></div> 
+          <div id='div_shard_distribution'></div>
+        </div>       
+      </div>
+	  <div id='mainright_cluster'>
+        <div class='hrlabel'>Dangerous actions</div>
+        <hr>
+        <div id='div_dangerous'>
+          <input type="checkbox" id='dangerous_checkbox' onchange='update_dangerous()'><span id='dangerous_span'>Allow potentially dangerous actions from Mongitor</span>
+        </div>  
+      
+        <div class='hrlabel'>Balancer</div>
+        <hr>
+        <div id='div_balancer_running'>
+          <div id='balancer_text'></div>
+          <input type="checkbox" id='balancer_checkbox' onchange='update_balancer()' disabled><span id='balancer_span'>Balancer is enabled</span>
+        </div>
+       </div>
+	   <div id='mainright_databases'>
+         <div class='hrlabel'>Databases</div>
+         <hr>
+         <div id='div_databases'>
+         </div>  
+       </div>
+     </div>
+
+    <div id="setPasswordModal" class="modal">
+      <div class="modal-content" id="modal-content-setpassword">
+        <p class="modaltitle">Set Mongitor password</p>
+        <form onsubmit='setpassword(); return false'>
+          <div>
+            <input id='initialpassword' placeholder='Choose password'>
+          </div>
+          <div class='hcenterflex'>            
+            <button class='modal_ok_button' type='submit'>OK</button>
+          </div>  
+        </form>  
+      </div>
+    </div>
+    <div id="enterPasswordModal" class="modal">
+      <div class="modal-content" id="modal-content-enterpassword">
+        <p class="modaltitle">Enter Mongitor password</p>
+        <div id='enterpasswordstatus'></div>
+        <form onsubmit='checkpassword(); return false'>
+          <div>
+            <input id='mongitorpassword' type='password' placeholder='password'>
+          </div>
+          <div class='hcenterflex'>            
+            <button class='modal_ok_button' type='submit'>OK</button>
+          </div>  
+        </form>  
+      </div>
+    </div>
+    <div id="enterDefaultCredentials" class="modal">
+      <div class="modal-content" id="modal-content-defaultcredentials">
+        <p class="modaltitle">Mongo Router Settings</p>
+        <div id='enterdefaultcredentialsstatus'></div>
+        <form onsubmit='setdefaultcredentials(); return false'>
+          <div>
+            <span class='modallabel'>Hostname</span><br>
+            <input id='inputrouterhost'>
+          </div>
+          <div>
+            <span class='modallabel'>Port</span><br>
+            <input id='inputrouterport' value='27017'>
+          </div>
+          <div>
+            <span class='modallabel'>Username</span><br>
+            <input id='inputrouterusername'>
+          </div>
+          <div>
+            <span class='modallabel'>Password</span><br>
+            <input id='inputrouterpassword'>
+          </div>
+          <div class='hcenterflex'>            
+            <button class='modal_ok_button' type='submit'>OK</button>
+          </div>  
+        </form>  
+      </div>
+    </div>   
+  </body>
+</html>
