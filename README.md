@@ -4,7 +4,7 @@ Tool to monitor MongoDB clusters.
 # Running Mongitor
 1. Install a recent java 8 jdk from [Oracle](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
 1. In C:\Program Files\Java\jdk1.8.0_151\jre\lib\security\java.security uncomment the line #crypto.policy=unlimited
-1. Download the files Mongitor.war, MongitorBackend.jar and Mongitor.properties from the [downloads](https://github.com/AiseBouma/Mongitor/tree/master/downloads) directory.
+1. Download Mongitor.zip from the [downloads](https://github.com/AiseBouma/Mongitor/tree/master/downloads) directory and unzip.
 1. Edit the paths in Mongitor.properties, so that they match your setup.
 1. Start Mongitor, by typing something like:
 `"C:\Program Files\Java\jdk1.8.0_151\bin\java" -jar c:\local\MongitorBackend.jar  "c:\local\Mongitor.properties"`
