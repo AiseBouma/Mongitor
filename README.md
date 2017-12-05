@@ -7,7 +7,7 @@ Tool to monitor MongoDB clusters.
 1. Edit the paths in Mongitor.properties, so that they match your setup.
 1. Start Mongitor, by typing something like:
 `"C:\Program Files\Java\jdk1.8.0_151\bin\java" -jar c:\local\MongitorBackend.jar  "c:\local\Mongitor.properties"`
-1. Point your web browser to http://localhost/Mongitor.
+1. Point your web browser to http://localhost:8080/Mongitor.
 1. Set your Mongitor password, when asked for it.
 1. Enter the details of your Mongo Router when asked for.
 1. Optionally enter extra credentials for MongoDB hosts by clicking on Credentials in the menu on the left.
