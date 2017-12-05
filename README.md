@@ -3,8 +3,8 @@ Tool to monitor MongoDB clusters.
 
 # Screenshots
 ![status screenshot](https://github.com/AiseBouma/Mongitor/blob/master/screenshots/status.png?raw=true)
-The Mongitor home page showing the status of all MongoDB servers.
-<br><br>
+<br>The Mongitor home page showing the status of all MongoDB servers.
+<br><br><br>
 ![replication screenshot](https://github.com/AiseBouma/Mongitor/blob/master/screenshots/replication.png?raw=true)
 Show the replication lag of a secondary. Run commands with the click of a button, including checking the oplog.
 <br>
