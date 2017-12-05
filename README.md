@@ -4,10 +4,11 @@ Tool to monitor MongoDB clusters.
 # Screenshots
 ![status screenshot](https://github.com/AiseBouma/Mongitor/blob/master/screenshots/status.png?raw=true)
 The Mongitor home page showing the status of all MongoDB servers.
-
+<br>
 ![replication screenshot](https://github.com/AiseBouma/Mongitor/blob/master/screenshots/status.png?raw=true)
 Show the replication lag of a secondary. Run commands with the click of a button, including checking the oplog.
-
+<br>
+<br>
 # Running Mongitor
 1. Install a recent java 8 jdk from [Oracle](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
 1. In C:\Program Files\Java\jdk1.8.0_151\jre\lib\security\java.security uncomment the line #crypto.policy=unlimited
