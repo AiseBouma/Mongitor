@@ -1,5 +1,5 @@
 # Mongitor
-Tool to monitor MongoDB clusters.
+Tool to monitor MongoDB clusters. The current version is still in beta. You are however encouraged to try it out and send me some feedback. I am interested in bugs as well as new features.
 
 # Screenshots
 ![status screenshot](https://github.com/AiseBouma/Mongitor/blob/master/screenshots/status.png?raw=true)
