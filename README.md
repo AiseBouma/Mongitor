@@ -1,6 +1,8 @@
 # Mongitor
 Tool to monitor MongoDB clusters. The current version is still in beta. You are however encouraged to try it out and send me some feedback. I am interested in bugs as well as new features.
 
+Mongitor has been tested on MongoDB 3.2, but should work as well on versions 3.0, 3.4 and 3.6.
+
 # Screenshots
 ![status screenshot](https://github.com/AiseBouma/Mongitor/blob/master/screenshots/status.png?raw=true)
 *The Mongitor home page showing the status of all MongoDB servers.*
@@ -69,7 +71,7 @@ Mongitor consists of 2 parts: A web frontend and a java backend, called Mongitor
 <br><br>
 ![architecture](https://github.com/AiseBouma/Mongitor/blob/master/pictures/mongitor_architecture.png?raw=true)
 <br><br>
-As shown Mongitor is designed to run on a PC. This has multiple reasons, the most important being the lack of multi-user support.
+As shown Mongitor is designed to run on a PC, instead of a server. This has multiple reasons, the most important being the lack of multi-user support.
 
 The web frontend is designed as a single page application. Commands are send to the backend via websockets and the results are received via the websockets as well. These results are then used to update the GUI. A good example of this is the handling of the Mongitor password which protects the entered MongoDb credentials. This flowchart describes this process:<br><br>
 ![architecture](https://github.com/AiseBouma/Mongitor/blob/master/pictures/credentials_flowchart.png?raw=true)<br><br>
