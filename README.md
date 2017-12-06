@@ -46,6 +46,20 @@ To build form source:
 
 There are two projects: Mongitor and MongitorBackend.
 
-Mongitor is the website. Create a webapp project in Eclipse and add the files. Then export the project to a war file.
+In Eclipse import the projects from GitHub via File - Import... - Git - Pojects from Git - Next >
+Select Clone URI and click Next >
+Use https://github.com/AiseBouma/Mongitor.git as URI and Next >
+Select master and Next >
+Select a directory and Next >
+Import existing Eclipse projects and Next >
+Finish
 
-MongitorBackend is a jettybased webserver. More information will follow.
+Mongitor is the website. Export the project to a war file.
+
+MongitorBackend is a jettybased webserver. Get Mongitor.zip from the downloads directory and extract. Edit the file Mongitor.properties to match you setup.
+Now create a run configuration with:
+1. MongitorMain as main class
+1. The full path of the file Mongitor.properties as argument
+1. Runtime JRE point to your JDK directory (e.g. C:\Program Files\Java\jdk1.8.0_151)
+1. In C:\Program Files\Java\jdk1.8.0_151\jre\lib\security\java.security uncomment the line #crypto.policy=unlimitedIn C:\Program Files\Java\jdk1.8.0_151\jre\lib\security\java.security uncomment the line #crypto.policy=unlimited
+1. Run the MongitorBackend project
