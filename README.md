@@ -64,4 +64,7 @@ Now create a run configuration with:
 1. In C:\Program Files\Java\jdk1.8.0_151\jre\lib\security\java.security uncomment the line #crypto.policy=unlimited
 1. Run the MongitorBackend project
 
+# Architecture
+
+
 
