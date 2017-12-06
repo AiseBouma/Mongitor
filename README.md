@@ -42,7 +42,7 @@ Tool to monitor MongoDB clusters. The current version is still in beta. You are 
 1. Read the User Manual via the link in the menu.
 
 # Building Mongitor
-To build form source:
+To build from source:
 
 There are two projects: Mongitor and MongitorBackend.
 
