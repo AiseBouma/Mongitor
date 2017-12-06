@@ -65,6 +65,9 @@ Now create a run configuration with:
 1. Run the MongitorBackend project
 
 # Architecture
+Mongitor consists of 2 parts: A web frontend and a java backend, called MongitorBackend. The following picture shows this:
+![architecture](https://github.com/AiseBouma/Mongitor/blob/master/pictures/mongitor_architecture.png?raw=true)
+
 
 
 
