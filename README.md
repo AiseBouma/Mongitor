@@ -61,5 +61,7 @@ Now create a run configuration with:
 1. MongitorMain as main class
 1. The full path of the file Mongitor.properties as argument
 1. Runtime JRE point to your JDK directory (e.g. C:\Program Files\Java\jdk1.8.0_151)
-1. In C:\Program Files\Java\jdk1.8.0_151\jre\lib\security\java.security uncomment the line #crypto.policy=unlimitedIn C:\Program Files\Java\jdk1.8.0_151\jre\lib\security\java.security uncomment the line #crypto.policy=unlimited
+1. In C:\Program Files\Java\jdk1.8.0_151\jre\lib\security\java.security uncomment the line #crypto.policy=unlimited
 1. Run the MongitorBackend project
+
+
