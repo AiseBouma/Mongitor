@@ -32,7 +32,7 @@ Mongitor has been tested on MongoDB 3.2, but should work as well on versions 3.0
 # Running Mongitor
 1. Install a recent java 8 jdk from [Oracle](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
 1. In C:\Program Files\Java\jdk1.8.0_151\jre\lib\security\java.security uncomment the line #crypto.policy=unlimited
-1. Download Mongitor.zip from the [downloads](https://github.com/AiseBouma/Mongitor/tree/master/downloads) directory and unzip.
+1. Download Mongitor-x.x.x.zip from the [downloads](https://github.com/AiseBouma/Mongitor/tree/master/downloads) directory and unzip.
 1. Edit the paths in Mongitor.properties, so that they match your setup.
 1. Start Mongitor, by typing something like:
 `"C:\Program Files\Java\jdk1.8.0_151\bin\java" -jar c:\local\MongitorBackend.jar  "c:\local\Mongitor.properties"`
@@ -58,7 +58,7 @@ Finish
 
 Mongitor is the website. Export the project to a war file.
 
-MongitorBackend is a jettybased webserver. Get Mongitor.zip from the downloads directory and extract. Edit the file Mongitor.properties to match you setup.
+MongitorBackend is a jettybased webserver. Get Mongitor-x.x.x.zip from the downloads directory and extract. Edit the file Mongitor.properties to match you setup.
 Now create a run configuration with:
 1. MongitorMain as main class
 1. The full path of the file Mongitor.properties as argument
