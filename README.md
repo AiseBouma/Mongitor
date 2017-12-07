@@ -65,6 +65,7 @@ Now create a run configuration with:
 1. Runtime JRE point to your JDK directory (e.g. C:\Program Files\Java\jdk1.8.0_151)
 1. In C:\Program Files\Java\jdk1.8.0_151\jre\lib\security\java.security uncomment the line #crypto.policy=unlimited
 1. Run the MongitorBackend project
+
 If the pom.xml is in error, then try:
 1. Right click on the MongitorBackend project.
 1. Select Maven > Update Project...
