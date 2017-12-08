@@ -110,7 +110,7 @@ public class OplogCommands
       }
     }
     
-    long maxsize = 0;
+    double maxsize = 0.0;
     double size = 0.0;
     long usage = 0;
     
@@ -119,11 +119,32 @@ public class OplogCommands
       try
       {
         Document stats = mongoDatabase.runCommand(new Document("collStats", "oplog.rs"));
-        size = stats.getDouble("size");
-        maxsize = stats.getLong("maxSize");
-        if (maxsize > 0)
-        {  
-          usage = Math.round(100 * size / maxsize);
+        DocumentGetNumber documentGetNumber = new DocumentGetNumber(stats, "size");
+        if (!documentGetNumber.isOk())
+        {
+          error = "Could not get size of oplog";
+        }
+        else
+        {
+          size = documentGetNumber.getValue();
+        
+          documentGetNumber = new DocumentGetNumber(stats, "maxSize");
+          if (!documentGetNumber.isOk())
+          {
+            error = "Could not get  maximum size of oplog";
+          }
+          else
+          {
+            maxsize = documentGetNumber.getValue();
+            if (maxsize > 0)
+            {  
+              usage = Math.round(100 * size / maxsize);
+            }
+            else
+            {
+              error = "Maximum size of oplog is incorrect";
+            }
+          }  
         }  
       }
       catch (Exception e)
