@@ -80,4 +80,8 @@ As shown Mongitor is designed to run on a PC, instead of a server. This has mult
 The web frontend is designed as a single page application. Commands are send to the backend via websockets and the results are received via the websockets as well. These results are then used to update the GUI. A good example of this is the handling of the Mongitor password which protects the entered MongoDb credentials. This flowchart describes this process:<br><br>
 ![architecture](https://github.com/AiseBouma/Mongitor/blob/master/pictures/credentials_flowchart.png?raw=true)<br><br>
 
+# Reset password
+To reset your password simply delete the credentials file. The path of this file is specified in the properties file. After deleting the credentials file, refresh the login page. Mongitor will then ask you for a new password.
+Please note: after deleting the credentials file, you have to re-enter the credentials for MongoDB.
+
 

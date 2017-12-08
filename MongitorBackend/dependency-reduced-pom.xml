@@ -4,7 +4,7 @@
   <groupId>nl.tools4all</groupId>
   <artifactId>MongitorBackend</artifactId>
   <name>MongitorBackend</name>
-  <version>0.1</version>
+  <version>0.2.0</version>
   <description>Mongitor websockets and MongoDB monitoring</description>
   <build>
     <plugins>
@@ -32,6 +32,7 @@
   <properties>
     <jetty-version>9.4.7.v20170914</jetty-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
 </project>
 
