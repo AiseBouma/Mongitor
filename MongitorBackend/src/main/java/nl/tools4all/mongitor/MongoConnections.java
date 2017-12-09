@@ -31,6 +31,7 @@ public class MongoConnections
   
   public static MongoClient getConnection(String host, int port)
   {
+    //System.out.println(connectionsMap.toString());
     MongoClient mongoClient = connectionsMap.get(host);
     if (mongoClient == null)
     {
@@ -79,10 +80,11 @@ public class MongoConnections
   public static String testConnection(String host, int port, MongoCredential credential)
   {
     String result = "OK";
+    MongoClient mongoClient = null;
     
     try
     {
-      MongoClient mongoClient = new MongoClient(new ServerAddress(host, port), Arrays.asList(credential), mongoClientOptions);
+      mongoClient = new MongoClient(new ServerAddress(host, port), Arrays.asList(credential), mongoClientOptions);
       MongoDatabase mongoDatabase = mongoClient.getDatabase("admin");
       Document statusResults = mongoDatabase.runCommand(new Document("serverStatus", 1));
       if ((statusResults == null) || (statusResults.getDouble("ok") != 1.0))
@@ -99,12 +101,24 @@ public class MongoConnections
       e.printStackTrace(Debug.getPrintStream());
       result = "Connection failed";
     }
+    if ((mongoClient != null) && (!"OK".equals(result)))
+    {
+      try
+      {
+        mongoClient.close();
+      }
+      catch (Exception e)
+      {
+        
+      }
+    }
     return result;
   }
   
   public static CommandResult runCommand(String server, String command)
   {
     CommandResult commandResult = null;
+    Document document = null;
     
     if ("printReplicationInfo".equals(command))
     {
@@ -120,7 +134,23 @@ public class MongoConnections
       else
       {
         MongoDatabase mongoDatabase = mongoClient.getDatabase("admin");
-        Document commandResults = mongoDatabase.runCommand(new Document(command, 1));
+        if ("getLogGlobal".equals(command))
+        {
+          document = new Document("getLog", "global");
+        }
+        else if ("getLogRs".equals(command))
+        {
+          document = new Document("getLog", "rs");
+        }
+        else if ("getLogStartup".equals(command))
+        {
+          document = new Document("getLog", "startupWarnings");
+        }
+        else
+        {
+          document = new Document(command, 1);
+        }
+        Document commandResults = mongoDatabase.runCommand(document);
         if ((commandResults == null) || (commandResults.getDouble("ok") != 1.0))
         {
           commandResult = new CommandResult("Command on " + server  + " failed");

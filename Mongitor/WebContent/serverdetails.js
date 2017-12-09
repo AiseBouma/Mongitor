@@ -164,6 +164,9 @@ function serverdetails(id_in, hostname)
           <div class='leftbutton' id='' onclick='mongoCommand("` + hostname + `","hostInfo")'>hostInfo</div>
           <div class='leftbutton' id='' onclick='mongoCommand("` + hostname + `","serverStatus")'>serverStatus</div>
           <div class='leftbutton' id='' onclick='mongoCommand("` + hostname + `","printReplicationInfo")'>printReplicationInfo</div>
+          <div class='leftbutton' id='' onclick='mongoCommand("` + hostname + `","getLogGlobal")'>getLog(global)</div>
+          <div class='leftbutton' id='' onclick='mongoCommand("` + hostname + `","getLogRs")'>getLog(replicaset)</div>
+          <div class='leftbutton' id='' onclick='mongoCommand("` + hostname + `","getLogStartup")'>getLog(startup)</div>
         </div>
         <div id="server_commands_rightdiv">
           <div id="command_output_label">Command output</div>
