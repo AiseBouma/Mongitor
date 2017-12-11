@@ -14,6 +14,7 @@ function hide_all_divs()
   $("#mainright_databases").hide();
   $("#mainright_databasedetails").hide();
   $("#mainright_collection").hide();
+  $("#mainright_shard").hide();
 }
 
 // function to show/hide panels

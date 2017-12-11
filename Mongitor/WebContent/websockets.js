@@ -365,22 +365,6 @@ function handleResponse(response)
         $("#mainright").html(mainright_empty);
       }  
       showstatus("Cluster discovered", true);
-      // updateclusterstatus(response.message);
-      // var message_obj = JSON.parse({ router:
-		// {hostname:"irak",port:27017,connected:false,_id:"irak:27017"},
-		// configservers:
-		// [{hostname:"drenthe",port:27017,connected:false,master:false,state:"",_id:"drenthe:27017"},{hostname:"flevoland",port:27017,connected:false,master:false,state:"",_id:"flevoland:27017"},{hostname:"overijssel",port:27017,connected:false,master:false,state:"",_id:"overijssel:27017"}],
-		// shards: []});
-      // , shards:
-		// [{\"id\":\"noord\",\"shardServers\":[{\"hostname\":\"friesland\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"?\",\"_id\":\"friesland:27017\"},{\"hostname\":\"groningen\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"?\",\"_id\":\"groningen:27017\"},{\"hostname\":\"noordholland\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"?\",\"_id\":\"noordholland:27017\"}]},{\"id\":\"midden\",\"shardServers\":[{\"hostname\":\"gelderland\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"?\",\"_id\":\"gelderland:27017\"},{\"hostname\":\"utrecht\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"?\",\"_id\":\"utrecht:27017\"},{\"hostname\":\"zuidholland\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"?\",\"_id\":\"zuidholland:27017\"}]},{\"id\":\"zuid\",\"shardServers\":[{\"hostname\":\"limburg\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"?\",\"_id\":\"limburg:27017\"},{\"hostname\":\"noordbrabant\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"?\",\"_id\":\"noordbrabant:27017\"},{\"hostname\":\"zeeland\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"?\",\"_id\":\"zeeland:27017\"}]}]
-		// });
-      // var message_obj = JSON.parse("{ \"router\":
-		// {\"hostname\":\"irak\",\"port\":27017,\"connected\":false,\"_id\":\"irak:27017\"}
-		// , \"configservers\":
-		// [{\"hostname\":\"drenthe\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"\",\"_id\":\"drenthe:27017\"},{\"hostname\":\"flevoland\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"\",\"_id\":\"flevoland:27017\"},{\"hostname\":\"overijssel\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"\",\"_id\":\"overijssel:27017\"}],
-		// \"shards\":
-		// [{\"id\":\"noord\",\"shardServers\":[{\"hostname\":\"friesland\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"?\",\"_id\":\"friesland:27017\"},{\"hostname\":\"groningen\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"?\",\"_id\":\"groningen:27017\"},{\"hostname\":\"noordholland\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"?\",\"_id\":\"noordholland:27017\"}]},{\"id\":\"midden\",\"shardServers\":[{\"hostname\":\"gelderland\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"?\",\"_id\":\"gelderland:27017\"},{\"hostname\":\"utrecht\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"?\",\"_id\":\"utrecht:27017\"},{\"hostname\":\"zuidholland\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"?\",\"_id\":\"zuidholland:27017\"}]},{\"id\":\"zuid\",\"shardServers\":[{\"hostname\":\"limburg\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"?\",\"_id\":\"limburg:27017\"},{\"hostname\":\"noordbrabant\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"?\",\"_id\":\"noordbrabant:27017\"},{\"hostname\":\"zeeland\",\"port\":27017,\"connected\":false,\"master\":false,\"state\":\"?\",\"_id\":\"zeeland:27017\"}]}]
-		// }");
       var message_obj = JSON.parse(response.message);
       if ('router' in message_obj)
       {  
@@ -432,7 +416,7 @@ function handleResponse(response)
           {
             $("#mainright").html($("#mainright").html() +
             `
-              <div class='hrlabel'>Shard ` + shard_obj['id'] + `</div>
+              <div class='hrlabel' onclick='show_shard("` + shard_obj['id'] + `")' id='shard_link'>Shard ` + shard_obj['id'] + `</div>
               <hr>
               <div class='showhide' id='showhide_shard' onclick='showhide($(this), $("#div_shard_` + shard_obj['id'] + `"))'>-</div>
               <div id='div_shard_` + shard_obj['id'] + `' class='div_shard'>
@@ -733,6 +717,43 @@ function handleResponse(response)
       $("#div_databases").html(response.error).css('color', 'red');
     }  
   }
+  else if (response.id == "sharddetails")
+  {  
+    if (response.ok)
+    {
+      var html = "";
+      var message_obj = JSON.parse(response.message);
+      var shard = "?";
+      if ("shard" in message_obj)
+      {
+        shard = message_obj['shard'];
+      } 
+      $("#shardname1").html(shard);
+      $("#shardname2").html(shard);
+      if ("chunks" in message_obj)
+      {
+        $("#div_shard_stats").html("Number of chunks: " + message_obj['chunks']).css('color', '#494747');
+      }  
+      if ("databases" in message_obj)
+      {
+        databases_array = message_obj['databases'];
+        databases_array.sort();
+        html = html + "<table id='databases_table'>";
+        databases_array.forEach(function(database)
+        {
+          html = html + "<tr>";
+          html = html + "<td>" + database + "</td>";
+          html = html + "</tr>";
+        });
+        html = html + "</table></div>";
+        $("#div_shard_databases").html(html);
+      }      
+    }  
+    else
+    {
+      $("#div_shard_stats").html(response.error).css('color', 'red');
+    }  
+  }
   else if (response.id == "databasedetails")
   {  
     if (response.ok)
@@ -777,7 +798,7 @@ function handleResponse(response)
   {  
     if (response.ok)
     {
-      var html = "<table id='collection_stats_table class='collection_details_table''>";
+      var html = "<table id='collection_stats_table' class='collection_details_table'>";
       var message_obj = JSON.parse(response.message);
       var sharded = "?";
       if ("sharded" in message_obj)
@@ -856,7 +877,7 @@ function handleResponse(response)
       
       if ("indexSizes" in message_obj)
       {
-        html = "<table id='collection_indexes_table class='collection_details_table''>";
+        html = "<table id='collection_indexes_table' class='collection_details_table'>";
         var indexes_obj = message_obj['indexSizes'];
         for (var propertyName in indexes_obj)
         {

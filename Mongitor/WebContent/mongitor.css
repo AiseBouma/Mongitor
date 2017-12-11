@@ -226,7 +226,8 @@ input
 }
 
 
-#mainright_credentials, #mainright_exit, #mainright_usermanual, #mainright_servers, #mainright_serverdetails, #mainright_cluster, #mainright_databases, #mainright_database_details, #mainright_collection
+#mainright_credentials, #mainright_exit, #mainright_usermanual, #mainright_servers, #mainright_serverdetails,
+#mainright_cluster, #mainright_databases, #mainright_database_details, #mainright_collection, #mainright_shard
 {
   display: none;
 }  
@@ -416,7 +417,8 @@ input
   overflow: auto;
 }
 
-#div_dangerous, #div_balancer_running, #div_databases, #div_collection_stats, #div_collection_indexes, #div_collection_shards
+#div_dangerous, #div_balancer_running, #div_databases, #div_collection_stats, #div_collection_indexes,
+#div_collection_shards, #div_shard_stats, #div_shard_databases
 {
   margin-left: 20px;
   margin-top: 30px;	
@@ -469,7 +471,8 @@ input
   margin-left: 20px;
   margin-top: 20px;	
 }
-.database_link, .collection_link
+
+.database_link, .collection_link, #shard_link
 {
   cursor: pointer;
   color: #006cbc;

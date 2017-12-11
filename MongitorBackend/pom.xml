@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>nl.tools4all</groupId>
 	<artifactId>MongitorBackend</artifactId>
-	<version>0.2.0</version>
+	<version>0.3.0</version>
 	<name>MongitorBackend</name>
 	<description>Mongitor websockets and MongoDB monitoring</description>
 	<properties>

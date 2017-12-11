@@ -186,6 +186,15 @@
       sendOverWebSocket("listdatabases", "command", {});
     }
     
+    function show_shard(shard)
+    {
+      show_div($("#mainright_shard")); 
+      $("#div_shard_stats").html("Waiting for results").css('color', '#494747');
+      $("#shardname1").html(shard);
+      $("#shardname2").html(shard);
+      sendOverWebSocket("sharddetails", "command", {"shard": shard});
+    }
+    
     function runcheck()
     {
       if (monitoring)
@@ -374,7 +383,17 @@
           <div id='div_shard_distribution'></div>
         </div>       
       </div>
-	  <div id='mainright_cluster'>
+	  <div id="mainright_shard">
+        <div class='hrlabel'>Statistics for shard <span id='shardname1'></span></div>
+        <hr>
+        <div class='showhide' id='showhide_shard_stats' onclick='showhide($(this), $("#div_shard_stats"))'>-</div>
+        <div id='div_shard_stats'></div>  
+        <div class='hrlabel'>Databases with primary shard <span id='shardname2'></span></div>
+        <hr>
+        <div class='showhide' id='showhide_shard_databases' onclick='showhide($(this), $("#div_shard_databases"))'>-</div>
+        <div id='div_shard_databases'></div>       
+      </div>
+      <div id='mainright_cluster'>
         <div class='hrlabel'>Dangerous actions</div>
         <hr>
         <div id='div_dangerous'>

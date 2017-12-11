@@ -212,6 +212,18 @@ public class MyWebSocketHandler
           websocketMessage = new WebsocketMessage("collectiondetails", "response", "", false, commandResult.getStatus());
         }
       }
+      else if ("sharddetails".equals(messageMap.get("id")))
+      {
+        CommandResult commandResult = MongoDBCluster.shardDetails(messageMap.get("shard"));
+        if ("OK".equals(commandResult.getStatus()))
+        {
+          websocketMessage = new WebsocketMessage("sharddetails", "response", commandResult.getResult());
+        }
+        else
+        {
+          websocketMessage = new WebsocketMessage("sharddetails", "response", "", false, commandResult.getStatus());
+        }
+      }
       else if ("getserverinfo".equals(messageMap.get("id")))
       {
         CommandResult commandResult = MongoDBCluster.getClusterOverview();

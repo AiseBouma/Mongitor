@@ -124,6 +124,45 @@ public class MongoDBCluster
     return commandResult;
   }
   
+  public static CommandResult shardDetails(String shard)
+  {
+    CommandResult commandResult = null;
+    String json = "{ \"shard\": \"" + shard + "\",\"databases\":[";
+    try
+    {
+      MongoDatabase mongoDatabase = mongoClient.getDatabase("config");
+      MongoCollection<Document> collection = mongoDatabase.getCollection("databases");
+      MongoCursor<Document> cursor = collection.find(new Document("primary", shard)).iterator();
+      boolean first = true;
+      while (cursor.hasNext())
+      {
+        if (first)
+        {
+          first = false;
+        }
+        else
+        {
+          json = json + ",";
+        }
+        Document document = cursor.next();
+        json = json + "\"" + document.getString("_id") + "\"";
+      }
+      cursor.close();
+     
+      json = json + "],\"chunks\":";
+      collection = mongoDatabase.getCollection("chunks");
+      long chunks = collection.count(new Document("shard", shard));
+      json = json + chunks;
+      json = json + "}";
+      commandResult = new CommandResult("OK", json);
+    }
+    catch (Exception e)
+    {
+      commandResult = new CommandResult("Exception while getting shard details: " + e.getMessage()); 
+    }
+    return commandResult;
+  }
+  
   public static CommandResult getClusterInfo()
   {
     CommandResult commandResult = null;
