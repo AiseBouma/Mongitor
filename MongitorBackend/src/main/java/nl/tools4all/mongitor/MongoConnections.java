@@ -120,47 +120,106 @@ public class MongoConnections
     CommandResult commandResult = null;
     Document document = null;
     
-    if ("printReplicationInfo".equals(command))
+    try
     {
-      commandResult = OplogCommands.replicationInfo(server);
-    }
-    else
-    {  
-      MongoClient mongoClient = connectionsMap.get(server);
-      if (mongoClient == null)
+      if ("printReplicationInfo".equals(command))
       {
-        commandResult = new CommandResult("No connection to " + server);
+        commandResult = OplogCommands.replicationInfo(server);
       }
       else
-      {
-        MongoDatabase mongoDatabase = mongoClient.getDatabase("admin");
-        if ("getLogGlobal".equals(command))
+      {  
+        MongoClient mongoClient = connectionsMap.get(server);
+        if (mongoClient == null)
         {
-          document = new Document("getLog", "global");
-        }
-        else if ("getLogRs".equals(command))
-        {
-          document = new Document("getLog", "rs");
-        }
-        else if ("getLogStartup".equals(command))
-        {
-          document = new Document("getLog", "startupWarnings");
+          commandResult = new CommandResult("No connection to " + server);
         }
         else
         {
-          document = new Document(command, 1);
-        }
-        Document commandResults = mongoDatabase.runCommand(document);
-        if ((commandResults == null) || (commandResults.getDouble("ok") != 1.0))
-        {
-          commandResult = new CommandResult("Command on " + server  + " failed");
-        } 
-        else
-        {
-          commandResult = new CommandResult("OK", commandResults.toJson());
-        }
+          MongoDatabase mongoDatabase = mongoClient.getDatabase("admin");
+          if ("getLogGlobal".equals(command))
+          {
+            document = new Document("getLog", "global");
+          }
+          else if ("getLogRs".equals(command))
+          {
+            document = new Document("getLog", "rs");
+          }
+          else if ("getLogStartup".equals(command))
+          {
+            document = new Document("getLog", "startupWarnings");
+          }
+          else
+          {
+            document = new Document(command, 1);
+          }
+          Document commandResults = mongoDatabase.runCommand(document);
+          if ((commandResults == null) || (commandResults.getDouble("ok") != 1.0))
+          {
+            commandResult = new CommandResult("Command on " + server  + " failed");
+          } 
+          else
+          {
+            commandResult = new CommandResult("OK", commandResults.toJson());
+          }
+        }  
       }  
     }
+    catch (Exception e)
+    {
+      commandResult = new CommandResult("Exception while running command: " + e.getMessage());
+    }
+    return commandResult;
+  }
+  
+  public static CommandResult orphanCleanup(String index, String shard, String server, String collection)
+  {
+    CommandResult commandResult = null;
+    Document commandResults;
+    int indexnr = -1;
+    
+    try
+    {
+      indexnr = Integer.parseInt(index);
+    }
+    catch (Exception e)
+    {
+      commandResult = new CommandResult("index must be an integer");
+    }
+    if (indexnr != -1)
+    {
+      Document mindoc = MongoDBCluster.getChunkStart(shard, collection, indexnr);
+    
+      try
+      {
+        MongoClient mongoClient = connectionsMap.get(server);
+        if (mongoClient == null)
+        {
+          commandResult = new CommandResult("No connection to " + server);
+        }
+        else
+        {
+          MongoDatabase mongoDatabase = mongoClient.getDatabase("admin");
+          Document commandDoc = new Document("cleanupOrphaned", collection);
+          
+          commandDoc.append("startingFromKey", mindoc);
+            
+          commandResults = mongoDatabase.runCommand(commandDoc);
+          
+          if ((commandResults == null) || (commandResults.getDouble("ok") != 1.0))
+          {
+            commandResult = new CommandResult("Command on " + server  + " failed");
+          } 
+          else
+          {
+            commandResult = new CommandResult("OK", commandResults.toJson());
+          }  
+        }
+      }
+      catch (Exception e)
+      {
+        commandResult = new CommandResult("Exception while cleaning: " + e.getMessage());
+      }
+    }  
     return commandResult;
   }
   

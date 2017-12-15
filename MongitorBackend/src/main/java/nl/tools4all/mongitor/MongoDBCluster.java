@@ -163,6 +163,51 @@ public class MongoDBCluster
     return commandResult;
   }
   
+  public static CommandResult orphanChunkCount(String shard, String hostname, String collection_ns)
+  {
+    CommandResult commandResult = null;
+    try
+    {
+      MongoDatabase mongoDatabase = mongoClient.getDatabase("config");
+      MongoCollection<Document> collection = mongoDatabase.getCollection("chunks");
+      long chunks = collection.count(new Document("$and", Arrays.asList(new Document("ns", collection_ns), new Document("shard", new Document("$ne", shard)))));
+      String json = "{ \"shard\": \"" + shard + "\", \"hostname\": \"" + hostname + "\", \"collection\": \"" + collection_ns + "\", \"chunkscount\": " + chunks + "}";
+      commandResult = new CommandResult("OK", json);
+    }
+    catch (Exception e)
+    {
+      commandResult = new CommandResult("Exception while counting chunks: " + e.getMessage()); 
+    }
+    return commandResult;
+  }
+  
+  // on large collections with a lot of consecutive chunks running cleanupOrphaned takes to long, therefore 
+  // cleanupOrphaned is run per chunk starting at the last chunk
+  
+  public static Document getChunkStart(String shard, String collection_ns, int index)
+  {
+    Document mindoc = null;
+    MongoCursor<Document> cursor = null;
+    try
+    {
+      MongoDatabase mongoDatabase = mongoClient.getDatabase("config");
+      MongoCollection<Document> collection = mongoDatabase.getCollection("chunks");
+      cursor = collection.find(new Document("$and", Arrays.asList(new Document("ns", collection_ns), new Document("shard", new Document("$ne", shard))))).sort(new Document("min", 1)).skip(index).iterator();
+      Document document = cursor.next();
+      mindoc = (Document) document.get("min");
+      System.out.println(mindoc.toJson());
+    }
+    catch (Exception e)
+    {  
+      
+    }
+    if (cursor != null)
+    {
+      cursor.close();
+    }
+    return mindoc;
+  }
+  
   public static CommandResult getClusterInfo()
   {
     CommandResult commandResult = null;
@@ -203,6 +248,40 @@ public class MongoDBCluster
     catch (Exception e)
     {
       commandResult = new CommandResult("Exception while getting balancer details: " + e.getMessage()); 
+    }
+    return commandResult;
+  }
+
+  public static CommandResult getShardedCollections()
+  {
+    CommandResult commandResult = null;
+
+    try
+    {
+      MongoDatabase mongoDatabase = mongoClient.getDatabase("config");
+      MongoCollection<Document> collection = mongoDatabase.getCollection("chunks");
+      MongoCursor<String> cursor = collection.distinct("ns", String.class).iterator();
+      String json = "{ \"collections\": [";
+      boolean first = true;
+      while (cursor.hasNext())
+      {
+        if (first)
+        {
+          first = false;
+        }
+        else
+        {
+          json = json + ",";
+        }
+        json = json + "\"" + cursor.next() + "\"";
+      }
+      json = json + "]}";
+      cursor.close();
+      commandResult = new CommandResult("OK", json);
+    }
+    catch (Exception e)
+    {
+      commandResult = new CommandResult("Exception while getting sharded collections: " + e.getMessage()); 
     }
     return commandResult;
   }

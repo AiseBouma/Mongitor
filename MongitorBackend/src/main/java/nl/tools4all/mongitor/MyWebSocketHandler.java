@@ -224,6 +224,30 @@ public class MyWebSocketHandler
           websocketMessage = new WebsocketMessage("sharddetails", "response", "", false, commandResult.getStatus());
         }
       }
+      else if ("cleanuporphanscount".equals(messageMap.get("id")))
+      {
+        CommandResult commandResult = MongoDBCluster.orphanChunkCount(messageMap.get("shard"), messageMap.get("hostname"), messageMap.get("collection"));
+        if ("OK".equals(commandResult.getStatus()))
+        {
+          websocketMessage = new WebsocketMessage("cleanuporphanscount", "response", commandResult.getResult());
+        }
+        else
+        {
+          websocketMessage = new WebsocketMessage("cleanuporphanscount", "response", "", false, commandResult.getStatus());
+        }
+      }
+      else if ("cleanuporphans".equals(messageMap.get("id")))
+      {
+        CommandResult commandResult = MongoConnections.orphanCleanup(messageMap.get("index"), messageMap.get("shard"), messageMap.get("server"), messageMap.get("collection"));
+        if ("OK".equals(commandResult.getStatus()))
+        {
+          websocketMessage = new WebsocketMessage("cleanuporphans", "response", commandResult.getResult());
+        }
+        else
+        {
+          websocketMessage = new WebsocketMessage("cleanuporphans", "response", "", false, commandResult.getStatus());
+        }
+      }
       else if ("getserverinfo".equals(messageMap.get("id")))
       {
         CommandResult commandResult = MongoDBCluster.getClusterOverview();
@@ -252,18 +276,6 @@ public class MyWebSocketHandler
       {
         MongoDBCluster.closeConnections();
       } 
-      else if ("getserverinfo".equals(messageMap.get("id")))
-      {
-        CommandResult commandResult = MongoDBCluster.getClusterOverview();
-        if ("OK".equals(commandResult.getStatus()))
-        {
-          websocketMessage = new WebsocketMessage("getserverinfo", "response", commandResult.getResult());
-        }
-        else
-        {
-          websocketMessage = new WebsocketMessage("getserverinfo", "response", "", false, commandResult.getStatus());
-        }
-      }
       else if ("getclusterinfo".equals(messageMap.get("id")))
       {
         CommandResult commandResult = MongoDBCluster.getClusterInfo();
@@ -274,6 +286,18 @@ public class MyWebSocketHandler
         else
         {
           websocketMessage = new WebsocketMessage("getclusterinfo", "response", "", false, commandResult.getStatus());
+        }
+      }
+      else if ("getshardedcollections".equals(messageMap.get("id")))
+      {
+        CommandResult commandResult = MongoDBCluster.getShardedCollections();
+        if ("OK".equals(commandResult.getStatus()))
+        {
+          websocketMessage = new WebsocketMessage("getshardedcollections", "response", commandResult.getResult());
+        }
+        else
+        {
+          websocketMessage = new WebsocketMessage("getshardedcollections", "response", "", false, commandResult.getStatus());
         }
       }
       else if ("setbalancer".equals(messageMap.get("id")))

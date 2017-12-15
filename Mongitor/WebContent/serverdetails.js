@@ -132,13 +132,28 @@ function updateChart()
   }  
 }
 
+function start_orphan(shard, hostname)
+{
+  sendOverWebSocket("cleanuporphanscount", "command", {shard: shard, hostname: hostname, collection: $("#orphan_collection_select").val()});
+  $("#orphan_start_button").prop("disabled", true);
+  $("#orphan_stop_button").prop("disabled", false);
+}
+
+function stop_orphan()
+{
+  orphans.stopped = true;
+  $("#orphan_start_button").prop("disabled", false);
+  $("#orphan_stop_button").prop("disabled", true); 
+  $("#orphan_status").html("Stopped");
+}
+
 function mongoCommand(hostname, command)
 {
   $("#server_command_output").html("Waiting for results").css('color', '#494747');
   sendOverWebSocket("mongocommand", "command", {server: hostname, mongocommand: command});
 }
 
-function serverdetails(id_in, hostname)
+function serverdetails(shard, id_in, hostname)
 {
   id = id_in;
   show_div($("#mainright_serverdetails"));
@@ -155,6 +170,50 @@ function serverdetails(id_in, hostname)
     chart_displayed = false;
     setTimeout(updateChart, 50); // flush dom before adding chart
   }  
+  //else if (($("#" + hostname + "_master").html() == "Yes") && (shard != 'configservers'))
+  // do not use cleanupOrphaned in Mongo versions before 3.6. It will sometimes wait for open notime cursors. These cursors
+  // can only be removed by restarting the node. For this it needs to become secondary and changing the primary
+  // is one of the reasons to run the cleanup in the first place...
+  // and unlike stated in the docs it will not timeout after one hour
+  // furthermore the driver will need to be replaced by the asynchronous version as the cleanup might run for a long time.
+  else if (false)
+  {  
+    $("#mainright_serverdetails").html(
+    `
+      <div class='hrlabel' id='hrlabelgraph'>Cleanup orphan documents on shard ` + shard + `</div>
+      <hr>
+      <div class='showhide' id='showhide_orphan' onclick='showhide($(this), $("#div_orphans"))'>-</div>
+      <div id='div_orphans'>
+        <table id='orphan_table'>
+          <tr>
+            <td>Collection:</td>
+            <td><select id='orphan_collection_select'></select></td>
+          </tr>
+          <tr>
+            <td>Pause interval:</td>
+            <td>
+              <select id='orphan_interval_select'>
+                <option value=1>0 minutes</option>
+                <option value=300000>5 minutes</option>
+                <option value=1800000>30 minutes</option>
+                <option value=3600000>60 minutes</option>
+              </select>
+            </td>
+          </tr>
+          <tr>  
+            <td>Status:</td>
+            <td id='orphan_status'>Not started</td>
+          </tr>
+          <tr>  
+            <td id='orphan_start'><button id='orphan_start_button' onclick='start_orphan("` + shard + `","` + hostname + `")' disabled>Start</button></td>
+            <td id='orphan_stop'><button id='orphan_stop_button' onclick='stop_orphan()' disabled>Stop</button></td>
+          </tr>          
+        </table>    
+      </div>
+    `);
+    sendOverWebSocket("getshardedcollections", "command", {});
+  }
+    
   $("#mainright_serverdetails").html($("#mainright_serverdetails").html() +
   `    
       <div class='hrlabel' id='hrlabelcommands'>Commands on ` + hostname + `</div>

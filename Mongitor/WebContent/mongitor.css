@@ -418,7 +418,7 @@ input
 }
 
 #div_dangerous, #div_balancer_running, #div_databases, #div_collection_stats, #div_collection_indexes,
-#div_collection_shards, #div_shard_stats, #div_shard_databases
+#div_collection_shards, #div_shard_stats, #div_shard_databases, #orphan_table
 {
   margin-left: 20px;
   margin-top: 30px;	
@@ -484,7 +484,12 @@ input
   font-size: 14px;
 }
 
-.collection_details_table
+#orphan_table td
+{
+  padding: 0px 25px 5px 0px;
+}
+
+.collection_details_table, #orphan_table
 {
   border-spacing: 0px;	
 }
@@ -529,3 +534,22 @@ input
 {
   color: #006cbc;
 }
+
+#orphan_start
+{
+  color: #cccccc;
+  text-align: left;
+}
+
+#orphan_stop
+{
+  color: #cccccc;
+  text-align: left;
+}
+
+#orphan_start
+{
+  height: 50px;
+  valign: bottom;
+}
+

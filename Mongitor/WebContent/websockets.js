@@ -7,6 +7,7 @@ var backlog = [];
 var mainright_empty = "";
 const trafficlights = ["traffic_white.png", "traffic_green.png", "traffic_orange.png", "traffic_red.png"];
 var replicationlags = [];
+var orphans = { total: 0, progress: 0, shard: "", server: "", collection: "", stopped: true};
 
 function sendBacklog()
 {
@@ -141,6 +142,7 @@ function add_replicationlag(server, lag)
 	var server_obj = find_lag_per_server(server);
 	if (server_obj == null)
 	{
+	  // new array
 		var lag_array = [{date: Date.now(), replicationlag: lag}];
 		server_obj = {server: server, lags: lag_array};
 		replicationlags.push(server_obj);
@@ -222,6 +224,21 @@ function update_shards(message_obj)
 	    }); 
 	  }
 	});  
+}
+
+function update_orphan_status()
+{
+  $("#orphan_status").html("Running on " + orphans.shard + " (chunk " + orphans.progress + " of " + orphans.total + ")").css('color', '#494747');
+}
+
+function next_cleanup()
+{
+  if (!orphans.stopped)
+  {  
+    orphans.progress++;
+    update_orphan_status();
+    sendOverWebSocket("cleanuporphans", "command", {shard: orphans.shard, server: orphans.server, collection: orphans.collection, index: (orphans.total-orphans.progress) + ""});
+  }
 }
 
 function addhtml(div, html)
@@ -395,7 +412,7 @@ function handleResponse(response)
             `
               <div class='server_left'>
                 <img id='` + configserver_obj['hostname'] + `_traffic' src='mongitor_images/traffic_white.png'>
-                <img src='mongitor_images/server.jpg' class='clickable' onclick='serverdetails("` + configserver_obj['_id'] + `","` + configserver_obj['hostname'] + `")'>
+                <img src='mongitor_images/server.jpg' class='clickable' onclick='serverdetails("configservers", "` + configserver_obj['_id'] + `","` + configserver_obj['hostname'] + `")'>
               </div>  
               <div class='server_right'>
                 <span class='servername'>` + configserver_obj['_id'] + `</span><br><br>
@@ -433,7 +450,7 @@ function handleResponse(response)
                   `
                    <div class='server_left'>
                      <img id='` + shardserver_obj['hostname'] + `_traffic' src='mongitor_images/traffic_white.png'>
-                     <img src='mongitor_images/server.jpg' class='clickable' onclick='serverdetails("` + shardserver_obj['_id'] + `","` + shardserver_obj['hostname'] + `")'>
+                     <img src='mongitor_images/server.jpg' class='clickable' onclick='serverdetails("` + shard_obj['id'] + `","` + shardserver_obj['_id'] + `","` + shardserver_obj['hostname'] + `")'>
                    </div>  
                    <div class='server_right'>
                      <span class='servername'>` + shardserver_obj['_id'] + `</span><br><br>
@@ -455,16 +472,83 @@ function handleResponse(response)
       showstatus("Failed to discover cluster: " + response.error, false);
     }  
   }
+  else if (response.id == "getshardedcollections")
+  {  
+    if (response.ok)
+    {
+      var message_obj = JSON.parse(response.message);
+      if ('collections' in message_obj)
+      {
+        $("#orphan_status").html("not started").css('color', '#494747');
+        $("#orphan_collection_select").find('option').remove();
+        var collections_array = message_obj['collections'];
+        collections_array.forEach(function(collection)
+        {
+          $("#orphan_collection_select").append("<option value='" + collection + "'>" + collection + "</option>");
+        });
+      }
+      $("#orphan_start_button").prop("disabled", !dangerous);
+    }
+    else
+    {
+      $("#orphan_status").html(response.error).css('color', 'red');
+    }  
+  }  
+  else if (response.id == "cleanuporphanscount")
+  {  
+    if (response.ok)
+    {
+      var message_obj = JSON.parse(response.message);
+      if (('chunkscount' in message_obj) && ('shard' in message_obj) && ('hostname' in message_obj) && ('collection' in message_obj))
+      {
+        orphans.total = message_obj['chunkscount'];
+        orphans.progress = 1;
+        orphans.shard = message_obj['shard'];
+        orphans.server = message_obj['hostname'];
+        orphans.collection = message_obj['collection'];
+        orphans.stopped = false;
+        update_orphan_status();
+        sendOverWebSocket("cleanuporphans", "command", {shard: orphans.shard, server: orphans.server, collection: orphans.collection, index: (orphans.total-orphans.progress) + ""});
+      }  
+    }
+    else
+    {
+      $("#orphan_status").html(response.error).css('color', 'red');
+    }  
+  }  
+  else if (response.id == "cleanuporphans")
+  {  
+    if (response.ok)
+    {
+      
+      if (orphans.progress < orphans.total)
+      {
+        
+        $("#orphan_status").html("Pausing (chunk " + orphans.progress + " of " + orphans.total + ")").css('color', '#494747');
+        setTimeout(next_cleanup, $("#orphan_interval_select").val());        
+      }  
+      else
+      {
+        $("#orphan_status").html("Ready.").css('color', '#494747');
+      }  
+    }
+    else
+    {
+      $("#orphan_status").html(response.error).css('color', 'red');
+    }  
+  }  
   else if (response.id == "checkcluster")
   {  
-	check_is_running = false;  
+	  check_is_running = false;  
     if (response.ok)
     {
       showstatus("Checked cluster at " + moment().format("DD-MM-YYYY HH:mm:ss") + ". No problems were found.", true);
+      document.title = "Mongitor";
     }  
     else
     {
       showstatus("Checked cluster at " + moment().format("DD-MM-YYYY HH:mm:ss") + ". Result: " + response.error, false);
+      document.title = "Mongitor!";
     }
 	  var message_obj = JSON.parse(response.message);
 	  if ('router' in message_obj)

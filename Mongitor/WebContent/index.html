@@ -20,6 +20,7 @@
     var update_timer_interval = 1000;
     var timer;
     var halted = false;
+    var dangerous = false;
     
     $(document).ready(function()
     {
@@ -256,11 +257,13 @@
       {
         $("#balancer_checkbox").prop("disabled", false);
         $("#balancer_span").css('color', '#006cbc');
+        dangerous = true;
       }
       else
       {
         $("#balancer_checkbox").prop("disabled", true);
         $("#balancer_span").css('color', '#cccccc');
+        dangerous = false;
       }  
     }
 
